@@ -20,4 +20,4 @@ To get started with this project:
 
 ```bash
 npm install
-npm start
+npm run dev
