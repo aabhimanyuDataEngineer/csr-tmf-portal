@@ -18,24 +18,22 @@ COPY tsconfig.json ./
 # Build the application
 RUN npm run build
 
-# Production stage with nginx
-FROM nginx:alpine as production
+# Production stage with Node.js serve
+FROM node:18-alpine as production
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Install serve globally
+RUN npm install -g serve
+
+# Create app directory
+WORKDIR /app
 
 # Copy built application from build stage
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/build ./build
 
-# Create non-root user for security
+# Create non-root user
 RUN addgroup -g 1001 -S appuser && \
-    adduser -S appuser -u 1001 -G appuser
-
-# Set permissions
-RUN chown -R appuser:appuser /usr/share/nginx/html && \
-    chown -R appuser:appuser /var/cache/nginx && \
-    chown -R appuser:appuser /var/log/nginx && \
-    chown -R appuser:appuser /etc/nginx/conf.d
+    adduser -S appuser -u 1001 -G appuser && \
+    chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
@@ -47,5 +45,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start the application with serve
+CMD ["serve", "-s", "build", "-l", "3000"]

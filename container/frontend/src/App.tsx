@@ -1,77 +1,103 @@
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React, { useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import CleanDashboard from './pages/CleanDashboard';
+import { getCurrentClientConfig } from './config/clientConfig';
 import './App.css';
 
-// Create a clinical-grade theme
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#1976d2', // Professional blue
+function App() {
+  const clientConfig = getCurrentClientConfig();
+
+  // Create dynamic theme based on client configuration
+  const theme = useMemo(() => createTheme({
+    palette: {
+      mode: 'light',
+      primary: {
+        main: clientConfig.primaryColor,
+      },
+      secondary: {
+        main: clientConfig.secondaryColor,
+      },
+      success: {
+        main: '#2e7d32',
+      },
+      warning: {
+        main: '#ed6c02',
+      },
+      background: {
+        default: '#f8f9fa',
+        paper: '#ffffff',
+      },
+      text: {
+        primary: '#1a1a1a',
+        secondary: '#666666',
+      },
     },
-    secondary: {
-      main: '#dc004e', // Clinical red for important actions
+    typography: {
+      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      h1: {
+        fontSize: '2.5rem',
+        fontWeight: 500,
+      },
+      h4: {
+        fontSize: '2rem',
+        fontWeight: 600,
+      },
+      h6: {
+        fontSize: '1.25rem',
+        fontWeight: 600,
+      },
+      body1: {
+        fontSize: '1rem',
+        lineHeight: 1.6,
+      },
+      body2: {
+        fontSize: '0.875rem',
+        lineHeight: 1.5,
+      },
     },
-    background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 500,
-    },
-    body1: {
-      fontSize: '1rem',
-      lineHeight: 1.6,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none', // Preserve case for clinical terminology
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            borderRadius: 8,
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: 12,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            borderRadius: 6,
+          },
         },
       },
     },
-  },
-});
+  }), [clientConfig]);
 
-// Create React Query client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 3,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-    },
-  },
-});
-
-function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <div className="App">
-            <header className="App-header">
-              <h1>AI-Powered Clinical Documentation Portal</h1>
-              <p>CSR and TMF Document Management System</p>
-            </header>
-            <main>
-              <p>Application is initializing...</p>
-              <p>This is the foundation for the clinical documentation portal.</p>
-            </main>
-          </div>
-        </Router>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Routes>
+          <Route path="/" element={<CleanDashboard />} />
+          <Route path="/documents" element={<CleanDashboard />} />
+          <Route path="/search" element={<CleanDashboard />} />
+          <Route path="/analytics" element={<CleanDashboard />} />
+          <Route path="/audit" element={<CleanDashboard />} />
+          <Route path="/settings" element={<CleanDashboard />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 
