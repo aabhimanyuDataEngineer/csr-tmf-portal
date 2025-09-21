@@ -66,21 +66,17 @@ service:
 # Ingress configuration
 ingress:
   enabled: true
-  className: "alb"
+  className: "nginx"
   annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/healthcheck-path: /health
-    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
-    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
-    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
-    alb.ingress.kubernetes.io/unhealthy-threshold-count: '3'
-    alb.ingress.kubernetes.io/tags: Environment=development,Project=csr-tmf-portal
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
   hosts:
     - host: csr-tmf-portal-dev.example.com  # Update with your actual domain
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: ""  # Catch-all for direct LoadBalancer access
       paths:
         - path: /
           pathType: Prefix
